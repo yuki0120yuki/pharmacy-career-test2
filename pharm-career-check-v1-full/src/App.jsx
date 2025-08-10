@@ -22,7 +22,7 @@ export default function App() {
   const [scores, setScores] = useState({ community: 0, hospital: 0, company: 0 })
 
   const handleAnswer = (choice) => {
-    // めちゃ単純な重み付け（ビルド確認用）
+    // シンプル重み付け（まずはビルド通す用）
     const q = QUESTIONS[current]
     const next = { ...scores }
     if (q.id === 1) {
@@ -71,7 +71,13 @@ export default function App() {
                   <li>✔ マッチ率をグラフ化</li>
                   <li>✔ 次の一歩のヒントも</li>
                 </ul>
-                <button onClick={() => { setPage('quiz'); setCurrent(0); setScores({ community: 0, hospital: 0, company: 0 }) }}>
+                <button
+                  onClick={() => {
+                    setPage('quiz')
+                    setCurrent(0)
+                    setScores({ community: 0, hospital: 0, company: 0 })
+                  }}
+                >
                   診断を受けてみる
                 </button>
               </div>
@@ -144,7 +150,8 @@ function DummyChart() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-          <Tooltip formatter={(v) => [`${v}%`, 'マッチ率（例）`]} />
+          {/* ←ここが修正点：クオートの閉じ忘れを修正 */}
+          <Tooltip formatter={(v) => [`${v}%`, 'マッチ率（例）']} />
           <Bar dataKey="value" />
         </BarChart>
       </ResponsiveContainer>
