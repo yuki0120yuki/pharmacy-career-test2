@@ -1,18 +1,16 @@
-/* ====== 基本リセット ====== */
 :root {
-  color-scheme: light dark;
-  --bg: #0a0f1a;
-  --panel: #0f1725;
-  --card: #111b2d;
-  --text: #e7eefc;
-  --subtext: #a8b3c7;
-  --primary: #8aa4ff;
-  --accent: #f0a3ff;
+  --bg: #0c0f14;
+  --card: #141a22;
+  --line: #223041;
+  --text: #dfe7f1;
+  --muted: #9fb0c6;
+  --brand: #7c8cff;
+  --pill: #1d2a3a;
 }
 
 *,
-*::before,
-*::after {
+*:before,
+*:after {
   box-sizing: border-box;
 }
 
@@ -22,129 +20,236 @@ body,
   height: 100%;
 }
 
-html,
 body {
   margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
     Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-}
-
-/* ====== Safe-area（上が切れない） ====== */
-.safe-area {
-  min-height: 100dvh; /* モバイルのアドレスバー縮小拡張でも安定 */
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  /* notch やシステムバーの重なりを吸収 */
-  padding-top: max(env(safe-area-inset-top), 12px);
-  padding-left: max(env(safe-area-inset-left), 12px);
-  padding-right: max(env(safe-area-inset-right), 12px);
-  padding-bottom: max(env(safe-area-inset-bottom), 12px);
-}
-
-/* ====== ヘッダー（シンプル） ====== */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background: color-mix(in oklab, var(--panel) 80%, black 20%);
-  border: 1px solid color-mix(in oklab, white 10%, var(--panel) 90%);
-  border-radius: 14px;
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0; /* safe-areaで余白が乗るから切れない */
-  z-index: 10;
-}
-
-/* ====== LP ヒーロー ====== */
-.hero {
-  position: relative;
-  border-radius: 18px;
-  overflow: clip;
-  padding: clamp(18px, 4.5vw, 28px);
-  background:
-    radial-gradient(1200px 600px at 20% 10%, rgba(138,164,255,0.35), transparent 60%),
-    radial-gradient(1200px 600px at 80% 30%, rgba(240,163,255,0.30), transparent 60%),
-    linear-gradient(180deg, #0e1630 0%, #0a0f1a 74%);
-  border: 1px solid color-mix(in oklab, white 10%, var(--card) 90%);
-}
-
-/* 背景に /public/images の画像をうっすら */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    url("/images/hero-bg.png") center / cover no-repeat;
-  opacity: 0.25; /* 無ければ 0 にする */
-  pointer-events: none;
-}
-
-/* 見出しやテキスト */
-.hero h1 {
-  margin: 0 0 6px;
-  font-size: clamp(20px, 6vw, 36px);
-  letter-spacing: 0.03em;
-}
-.hero p {
-  margin: 0;
-  color: var(--subtext);
-}
-
-/* CTA ボタン */
-.cta {
-  margin-top: 16px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.button {
-  appearance: none;
-  border: 1px solid color-mix(in oklab, white 14%, var(--panel) 86%);
-  background: linear-gradient(180deg, #253159, #19233f);
+  background: radial-gradient(1200px 600px at 50% -10%, #1a2230, #0c0f14);
   color: var(--text);
-  padding: 12px 18px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 画面外の内容が隠れないように */
+.wrap {
+  min-height: 100dvh; /* ← ココ大事（スマホの上部切れ対策） */
+  display: grid;
+  place-items: start center;
+  padding: 24px;
+}
+
+.section {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.title {
+  font-size: clamp(22px, 2.4vw + 12px, 36px);
+  letter-spacing: 0.2px;
+  margin: 8px 0 4px;
+}
+
+.hero-title {
+  font-size: clamp(28px, 3.6vw + 12px, 44px);
+  margin: 0 0 6px;
+}
+
+.lead {
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--pill);
+  color: var(--text);
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.cta-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  place-items: start;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, #6e7bff, #7c8cff 60%, #9aa6ff);
+  color: #111417;
+  font-weight: 700;
+  letter-spacing: 0.3px;
   border-radius: 12px;
-  font-weight: 600;
+  padding: 12px 18px;
   cursor: pointer;
 }
-.button.primary {
-  background: linear-gradient(180deg, #8aa4ff, #6e89ff);
-  border-color: color-mix(in oklab, white 30%, #6e89ff 70%);
-  color: #0a0f1a;
+
+.mini {
+  color: var(--muted);
+  font-size: 13px;
 }
 
-/* カード群 */
-.grid {
-  margin-top: 18px;
+/* Feature row */
+.row {
   display: grid;
-  gap: 14px;
+  gap: 24px;
+  grid-template-columns: 1fr;
 }
-@media (min-width: 900px) {
-  .grid {
+@media (width >= 900px) {
+  .row {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
-.card {
-  background: var(--card);
-  border: 1px solid color-mix(in oklab, white 8%, var(--card) 92%);
-  border-radius: 14px;
-  padding: 16px;
+
+.card-title {
+  margin: 4px 0 8px;
+  font-weight: 700;
 }
 
-/* キャラ画像（/public/images/char-*.png） */
-.characters {
-  position: relative;
+/* Flow 1-2-3 */
+.flow {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+.flow .step {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.flow .num {
+  width: 36px;
+  height: 36px;
+  background: var(--pill);
+  border: 1px solid var(--line);
+  border-radius: 999px;
   display: grid;
   place-items: center;
-  min-height: clamp(160px, 40vw, 260px);
+  color: var(--text);
+  font-weight: 800;
 }
-.character {
-  max-width: min(70%, 280px);
+
+/* Quiz */
+.quiz {
+  display: grid;
+  gap: 16px;
+}
+.quiz-head {
+  display: grid;
+  gap: 8px;
+}
+.q {
+  margin: 0;
+  font-size: clamp(18px, 2.4vw + 10px, 24px);
+}
+.ans-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (width >= 680px) {
+  .ans-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.ans {
+  background: linear-gradient(180deg, #1a2432, #141a22);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Results - Top3 */
+.top-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+@media (width >= 900px) {
+  .top-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.result-card {
+  display: grid;
+  grid-template-rows: auto 160px auto;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.result-card .rank {
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.result-card .thumb {
   width: 100%;
-  height: auto;
-  filter: drop-shadow(0 14px 28px rgba(0,0,0,.4));
+  height: 160px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0f141c;
+  border: 1px solid var(--line);
+}
+.result-card .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ← イラストが切れないように */
+}
+.result-card .info {
+  display: grid;
+  gap: 4px;
+}
+.result-card .role {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.result-card .score {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* charts */
+.chart-wrap {
+  width: 100%;
+  height: 320px;
+}
+
+/* さらにスマホ余白の安全策 */
+@supports (height: 100svh) {
+  .wrap {
+    min-height: 100svh;
+  }
 }
