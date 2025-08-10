@@ -3,7 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import Progress from "./Progress";
 
 // ★ここにあなたのGAS URLを貼り付けてください
-const GAS_ENDPOINT = "https://script.google.com/macros/s/XXXXXXXX/exec";
+const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyI-iHWSThCYzgMGz9hN-7MS2nr1vsnN8kOSLTbxXEkZHkTxbeKbe5NsUcYCIjacVc_/exec";
 
 /**
  * props:
