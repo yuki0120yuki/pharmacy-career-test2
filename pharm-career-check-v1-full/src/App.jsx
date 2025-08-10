@@ -22,7 +22,6 @@ export default function App() {
   const [scores, setScores] = useState({ community: 0, hospital: 0, company: 0 })
 
   const handleAnswer = (choice) => {
-    // シンプル重み付け（まずはビルド通す用）
     const q = QUESTIONS[current]
     const next = { ...scores }
     if (q.id === 1) {
@@ -121,8 +120,9 @@ export default function App() {
                 <BarChart data={resultData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
-                  <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                  <Tooltip formatter={(v) => [`${v}%`, 'マッチ率']} />
+                  {/* ← テンプレートリテラルを使わず連結に変更 */}
+                  <YAxis domain={[0, 100]} tickFormatter={(v) => (v + '%')} />
+                  <Tooltip formatter={(v) => [ (v + '%'), 'マッチ率' ]} />
                   <Bar dataKey="value" />
                 </BarChart>
               </ResponsiveContainer>
@@ -149,9 +149,9 @@ function DummyChart() {
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
-          <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-          {/* ←ここが修正点：クオートの閉じ忘れを修正 */}
-          <Tooltip formatter={(v) => [`${v}%`, 'マッチ率（例）']} />
+          {/* ← テンプレートリテラルを使わず連結に変更 */}
+          <YAxis domain={[0, 100]} tickFormatter={(v) => (v + '%')} />
+          <Tooltip formatter={(v) => [ (v + '%'), 'マッチ率（例）' ]} />
           <Bar dataKey="value" />
         </BarChart>
       </ResponsiveContainer>
