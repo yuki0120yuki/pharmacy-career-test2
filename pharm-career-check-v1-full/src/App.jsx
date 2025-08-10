@@ -14,7 +14,7 @@ import QUESTIONS from "./data/questions";
 import { ROLES, DIMENSIONS, ROLE_WEIGHTS } from "./data/roles";
 import "./styles.css";
 
-/* ============== 小さめSVGのデコ（背景でふわっと動く） ============== */
+/* ============== デコ用SVG（背景） ============== */
 const Pill = (props) => (
   <svg viewBox="0 0 120 40" width={120} height={40} {...props}>
     <defs>
@@ -41,6 +41,43 @@ const Flask = (props) => (
   </svg>
 );
 
+/* ============== 職種イメージ：画像 or SVGフォールバック ============== */
+function JobImage({ roleKey, size = 96 }) {
+  const [imgOk, setImgOk] = useState(true);
+  const src = `/images/${roleKey}.png`; // 置けば自動で使われる
+
+  // フォールバックSVG（白衣キャラ風の簡易オリジナル）
+  const Fallback = () => (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden>
+      <defs>
+        <linearGradient id={`face-${roleKey}`} x1="0" x2="1">
+          <stop offset="0" stopColor="#7BD6F6" />
+          <stop offset="1" stopColor="#FF7ACB" />
+        </linearGradient>
+      </defs>
+      <circle cx="60" cy="42" r="22" fill={`url(#face-${roleKey})`} />
+      <rect x="30" y="60" width="60" height="46" rx="10" fill="#fff" />
+      <rect x="55" y="72" width="10" height="18" rx="3" fill="#9fb3d1" />
+      <circle cx="53" cy="40" r="3" fill="#101828" />
+      <circle cx="67" cy="40" r="3" fill="#101828" />
+      <path d="M50 48 Q60 53 70 48" stroke="#0f172a" strokeWidth="2" fill="none" />
+    </svg>
+  );
+
+  return imgOk ? (
+    <img
+      src={src}
+      width={size}
+      height={size}
+      alt=""
+      onError={() => setImgOk(false)}
+      style={{ objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,.06)" }}
+    />
+  ) : (
+    <Fallback />
+  );
+}
+
 /* ============== ユーティリティ ============== */
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
 
@@ -59,8 +96,7 @@ function Landing({ onStart }) {
 
       <div className="hero">
         <motion.h1 layout>
-          薬学部キャリア診断
-          <span className="accent">（1分）</span>
+          薬学部キャリア診断 <span className="accent">（1分）</span>
         </motion.h1>
         <p className="lead">
           かんたんな質問に答えるだけ。あなたの強みから、10職種の中で
@@ -75,18 +111,9 @@ function Landing({ onStart }) {
       </div>
 
       <div className="cards">
-        <FeatureCard
-          title="結果はグラフィックで"
-          desc="レーダーチャート＋Top3マッチで、強みと向いている職種がひと目でわかる。"
-        />
-        <FeatureCard
-          title="質問は学生向け"
-          desc="専門用語は最小限。学校生活や性格に寄った質問なので直感で回答OK。"
-        />
-        <FeatureCard
-          title="学内イベントでも使える"
-          desc="QRで配布・無料で公開OK。診断後にLPへ誘導して企画の告知も。"
-        />
+        <FeatureCard title="結果はグラフィックで" desc="レーダーチャート＋Top3マッチで、強みがひと目でわかる。" />
+        <FeatureCard title="学生でもわかる" desc="専門用語は最小限。直感でスイスイ答えられる設計。" />
+        <FeatureCard title="学内イベントでも活用" desc="QR配布OK。診断後にLPへ誘導して告知・応募に繋げる。" />
       </div>
 
       <div className="flow">
@@ -117,24 +144,26 @@ const Step = ({ n, t }) => (
   </div>
 );
 
-/* ============== 診断画面 ============== */
+/* ============== 診断画面（回答→自動で次へ） ============== */
 function Quiz({ onFinish }) {
   const [page, setPage] = useState(0);
   const [answers, setAnswers] = useState([]); // 0..4 の5段階
-
   const q = QUESTIONS[page];
   const percent = Math.round(((page + 1) / QUESTIONS.length) * 100);
 
-  const setAns = (v) => {
+  const choose = (v) => {
+    // 回答をセットして、120ms後に自動で次へ
     const next = [...answers];
     next[page] = v;
     setAnswers(next);
+
+    const isLast = page >= QUESTIONS.length - 1;
+    setTimeout(() => {
+      if (isLast) onFinish(next);
+      else setPage((p) => p + 1);
+    }, 120);
   };
 
-  const next = () => {
-    if (page < QUESTIONS.length - 1) setPage(page + 1);
-    else onFinish(answers);
-  };
   const back = () => page > 0 && setPage(page - 1);
 
   return (
@@ -159,11 +188,7 @@ function Quiz({ onFinish }) {
         <div className="choices">
           {["全く違う", "やや違う", "どちらとも", "やや当てはまる", "とても当てはまる"].map(
             (label, i) => (
-              <button
-                key={i}
-                className={`choice ${answers[page] === i ? "active" : ""}`}
-                onClick={() => setAns(i)}
-              >
+              <button key={i} className={`choice ${answers[page] === i ? "active" : ""}`} onClick={() => choose(i)}>
                 {label}
               </button>
             )
@@ -174,12 +199,9 @@ function Quiz({ onFinish }) {
           <button className="btn ghost" onClick={back} disabled={page === 0}>
             戻る
           </button>
-          <button
-            className="btn btn-primary"
-            onClick={next}
-            disabled={answers[page] == null}
-          >
-            {page === QUESTIONS.length - 1 ? "結果を見る" : "次へ"}
+          {/* 次へボタンは残すが、自動前進するので未操作でOK */}
+          <button className="btn btn-primary" onClick={() => choose(answers[page] ?? 2)}>
+            次へ
           </button>
         </div>
       </div>
@@ -187,15 +209,15 @@ function Quiz({ onFinish }) {
   );
 }
 
-/* ============== 結果画面 ============== */
+/* ============== 結果画面（イラスト付き） ============== */
 function Results({ rawAnswers, onRetry, onBackLP }) {
-  // 1) 質問→各適性軸(ディメンション)のスコア化（0..1）
+  // 1) 質問→適性軸(0..1)
   const dimScores = useMemo(() => {
     const sums = Object.fromEntries(DIMENSIONS.map((d) => [d, 0]));
     const counts = Object.fromEntries(DIMENSIONS.map((d) => [d, 0]));
     rawAnswers.forEach((a, i) => {
       const q = QUESTIONS[i];
-      const v = [0, 0.25, 0.5, 0.75, 1][a]; // 5段階→0..1
+      const v = [0, 0.25, 0.5, 0.75, 1][a];
       q.dimensions.forEach((d) => {
         sums[d] += v;
         counts[d] += 1;
@@ -208,27 +230,26 @@ function Results({ rawAnswers, onRetry, onBackLP }) {
     return avg;
   }, [rawAnswers]);
 
-  // 2) ディメンション×重み→職種スコア(0..100)
+  // 2) 職種スコア
   const roleScores = useMemo(() => {
     const out = ROLES.map((role) => {
-      const w = ROLE_WEIGHTS[role.key]; // {dim: weight}
+      const w = ROLE_WEIGHTS[role.key];
       let s = 0;
-      let totalW = 0;
+      let tw = 0;
       DIMENSIONS.forEach((d) => {
         const ww = w[d] ?? 0;
         s += (dimScores[d] ?? 0) * ww;
-        totalW += Math.abs(ww);
+        tw += Math.abs(ww);
       });
-      const normalized = totalW ? (s / totalW) * 100 : 0;
-      return { key: role.key, name: role.name, score: Math.round(normalized) };
+      return { key: role.key, name: role.name, desc: role.desc, score: Math.round((tw ? s / tw : 0) * 100) };
     });
     return out.sort((a, b) => b.score - a.score);
   }, [dimScores]);
 
-  // 3) RadarChart用データ
+  // 3) レーダー用
   const chartData = DIMENSIONS.map((d) => ({
     axis: d,
-    value: Math.round((clamp01(dimScores[d]) * 100)),
+    value: Math.round(clamp01(dimScores[d]) * 100),
   }));
 
   const top3 = roleScores.slice(0, 3);
@@ -246,7 +267,7 @@ function Results({ rawAnswers, onRetry, onBackLP }) {
       <header className="res-header">
         <h2>診断結果</h2>
         <p className="sub">
-          レーダーはあなたの<strong>適性バランス</strong>。下のカードで<strong>相性の高い職種Top3</strong>をチェック。
+          レーダーはあなたの<strong>適性バランス</strong>。下のカードで<strong>相性Top3</strong>をチェック。
         </p>
       </header>
 
@@ -255,18 +276,8 @@ function Results({ rawAnswers, onRetry, onBackLP }) {
           <RadarChart data={chartData} outerRadius="80%">
             <PolarGrid stroke="rgba(255,255,255,.3)" />
             <PolarAngleAxis dataKey="axis" tick={{ fill: "rgba(255,255,255,.8)", fontSize: 12 }} />
-            <PolarRadiusAxis
-              angle={30}
-              domain={[0, 100]}
-              tick={{ fill: "rgba(255,255,255,.5)", fontSize: 10 }}
-            />
-            <Radar
-              name="適性"
-              dataKey="value"
-              stroke="#7BD6F6"
-              fill="#7BD6F6"
-              fillOpacity={0.45}
-            />
+            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "rgba(255,255,255,.5)", fontSize: 10 }} />
+            <Radar name="適性" dataKey="value" stroke="#7BD6F6" fill="#7BD6F6" fillOpacity={0.45} />
             <Tooltip formatter={(v) => `${v}%`} />
           </RadarChart>
         </ResponsiveContainer>
@@ -275,28 +286,28 @@ function Results({ rawAnswers, onRetry, onBackLP }) {
       <div className="top-cards">
         {top3.map((r, i) => (
           <motion.div key={r.key} className="card role" whileHover={{ y: -4 }}>
-            <div className="rank">{i + 1}</div>
-            <div className="role-title">{r.name}</div>
-            <div className="score">{r.score}%</div>
-            <p className="role-desc">{ROLES.find((x) => x.key === r.key)?.desc}</p>
+            <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+              <JobImage roleKey={r.key} size={86} />
+              <div>
+                <div className="role-title">{r.name}</div>
+                <div className="score">{r.score}%</div>
+              </div>
+            </div>
+            <p className="role-desc" style={{ marginTop: 8 }}>{r.desc}</p>
           </motion.div>
         ))}
       </div>
 
       <div className="actions">
-        <button className="btn ghost" onClick={onBackLP}>
-          LPに戻る
-        </button>
-        <button className="btn btn-primary" onClick={onRetry}>
-          もう一度診断する
-        </button>
+        <button className="btn ghost" onClick={onBackLP}>LPに戻る</button>
+        <button className="btn btn-primary" onClick={onRetry}>もう一度診断する</button>
       </div>
 
       <div className="next-steps glass">
         <h3>次の一歩</h3>
         <ul>
           <li>気になる職種のOB/OGに話を聞いてみる</li>
-          <li>学内実習や研究室選びを「適性軸」で見直す</li>
+          <li>実習や研究室選びを「適性軸」で見直す</li>
           <li>在宅/病院見学や企業セミナーに申込み</li>
         </ul>
       </div>
@@ -319,6 +330,7 @@ export default function App() {
             onFinish={(ans) => {
               setAnswers(ans);
               setMode("results");
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           />
         )}
@@ -335,9 +347,7 @@ export default function App() {
       <footer className="footer">
         <span>© Pharm Career Check</span>
         <span className="dot">•</span>
-        <a href="#" onClick={(e) => e.preventDefault()}>
-          プライバシー
-        </a>
+        <a href="#" onClick={(e) => e.preventDefault()}>プライバシー</a>
       </footer>
     </div>
   );
