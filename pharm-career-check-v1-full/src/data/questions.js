@@ -1,131 +1,35 @@
-export const ROLES = [
-  { key:'pharmacy', label:'薬局薬剤師', desc:'地域の患者さんに近く、接遇・服薬指導・在宅など「寄り添う力」が生きる。', next:['OTCの幅を広げる','在宅同行の見学','多職種連携の体験']},
-  { key:'hospital', label:'病院薬剤師', desc:'チーム医療の要。注射・化学療法・モニタリングなど臨床の専門性を発揮。', next:['病棟業務の見学','NST/ICTの役割を学ぶ','治療プロトコルの勉強']},
-  { key:'homecare', label:'在宅医療', desc:'生活背景に寄り添い、訪問服薬指導や地域連携で長期的に支える。', next:['往診同行の体験','地域包括ケアの理解','家族支援の視点を学ぶ']},
-  { key:'industry', label:'企業（開発/MSL等）', desc:'科学的根拠と説明力の両輪。情報発信・企画力・語学力が活きる。', next:['企業セミナー参加','英語/論文抄読の習慣','インターン情報の収集']},
-  { key:'cro', label:'CRO（臨床開発）', desc:'治験運用と品質を支える。ルール順守・記録・調整力が鍵。', next:['GCPの理解','モニタリングの流れを学ぶ','品質保証の視点を持つ']},
-  { key:'research', label:'研究/アカデミア', desc:'仮説検証・データ解析・論文化。探究心と粘り強さが武器。', next:['研究室訪問','統計の基礎','学会ポスターの作成体験']},
-]
+// 適性軸（DIMENSIONS）は roles.js 側で定義しています。
+// ここでは各質問がどの軸に寄与するかを指定。
 
-export const QUESTIONS = [
-  { id:1,  title:'人と話すのは得意？', desc:'初対面でも抵抗なく会話できるか', choices:[
-    {label:'とても得意', weight:{pharmacy:3,hospital:2,homecare:3,industry:1,cro:0,research:1}},
-    {label:'やや得意',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'やや苦手',   weight:{pharmacy:1,hospital:1,homecare:1,industry:2,cro:2,research:3}},
-    {label:'かなり苦手', weight:{pharmacy:0,hospital:1,homecare:0,industry:2,cro:3,research:4}},
-  ]},
-  { id:2,  title:'コツコツ正確に続ける作業は？', desc:'慎重さや記録業務への耐性', choices:[
-    {label:'大好き', weight:{pharmacy:1,hospital:2,homecare:1,industry:1,cro:3,research:2}},
-    {label:'得意',   weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:3,research:1}},
-    {label:'普通',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',   weight:{pharmacy:3,hospital:1,homecare:3,industry:1,cro:0,research:2}},
-  ]},
-  { id:3,  title:'データ/論文を読み込んで仮説を立てるのは？', desc:'探究心や分析志向', choices:[
-    {label:'大好き', weight:{pharmacy:0,hospital:1,homecare:0,industry:2,cro:2,research:5}},
-    {label:'得意',   weight:{pharmacy:1,hospital:2,homecare:1,industry:3,cro:2,research:1}},
-    {label:'普通',   weight:{pharmacy:3,hospital:3,homecare:2,industry:1,cro:0,research:1}},
-    {label:'苦手',   weight:{pharmacy:4,hospital:4,homecare:3,industry:0,cro:0,research:0}},
-  ]},
-  { id:4,  title:'一人で集中 vs チームで連携、どっちが好き？', desc:'ワークスタイルの好み', choices:[
-    {label:'一人が好き', weight:{pharmacy:1,hospital:1,homecare:1,industry:1,cro:2,research:4}},
-    {label:'やや一人',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:2,research:2}},
-    {label:'ややチーム', weight:{pharmacy:3,hospital:3,homecare:3,industry:2,cro:1,research:0}},
-    {label:'チームが好き', weight:{pharmacy:4,hospital:4,homecare:4,industry:2,cro:0,research:0}},
-  ]},
-  { id:5,  title:'急な相談やトラブルに臨機応変に対応できる？', desc:'現場対応力', choices:[
-    {label:'とても得意', weight:{pharmacy:3,hospital:3,homecare:3,industry:0,cro:0,research:1}},
-    {label:'得意',       weight:{pharmacy:3,hospital:3,homecare:2,industry:1,cro:0,research:1}},
-    {label:'普通',       weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',       weight:{pharmacy:1,hospital:1,homecare:1,industry:3,cro:3,research:2}},
-  ]},
-  { id:6,  title:'英語や発表での情報発信は？', desc:'MSL/企業で求められる説明力', choices:[
-    {label:'得意',       weight:{pharmacy:0,hospital:1,homecare:0,industry:4,cro:2,research:3}},
-    {label:'やや得意',   weight:{pharmacy:1,hospital:1,homecare:1,industry:3,cro:2,research:2}},
-    {label:'普通',       weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:2,research:1}},
-    {label:'苦手',       weight:{pharmacy:3,hospital:3,homecare:3,industry:1,cro:0,research:0}},
-  ]},
-  { id:7,  title:'生活背景や家族関係も含めて支援に興味がある？', desc:'在宅寄りの価値観', choices:[
-    {label:'とてもある', weight:{pharmacy:2,hospital:1,homecare:5,industry:0,cro:0,research:0}},
-    {label:'ある',       weight:{pharmacy:3,hospital:2,homecare:3,industry:0,cro:0,research:0}},
-    {label:'少しある',   weight:{pharmacy:3,hospital:3,homecare:2,industry:0,cro:1,research:1}},
-    {label:'あまりない', weight:{pharmacy:2,hospital:4,homecare:0,industry:2,cro:2,research:2}},
-  ]},
-  { id:8,  title:'薬物治療やプロトコル最適化に強く関わりたい？', desc:'病院寄りの価値観', choices:[
-    {label:'とても関わりたい', weight:{pharmacy:0,hospital:5,homecare:1,industry:1,cro:1,research:2}},
-    {label:'関わりたい',       weight:{pharmacy:1,hospital:4,homecare:2,industry:1,cro:1,research:1}},
-    {label:'少し関わりたい',   weight:{pharmacy:2,hospital:3,homecare:2,industry:2,cro:1,research:0}},
-    {label:'あまり',           weight:{pharmacy:3,hospital:1,homecare:2,industry:2,cro:2,research:2}},
-  ]},
-  { id:9,  title:'ルール順守・品質管理は苦じゃない？', desc:'CRO/品質保証適性', choices:[
-    {label:'全く苦じゃない', weight:{pharmacy:0,hospital:1,homecare:0,industry:2,cro:5,research:2}},
-    {label:'苦じゃない',     weight:{pharmacy:1,hospital:1,homecare:1,industry:2,cro:4,research:1}},
-    {label:'やや苦',         weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:2,research:2}},
-    {label:'かなり苦',       weight:{pharmacy:3,hospital:3,homecare:3,industry:1,cro:0,research:2}},
-  ]},
-  { id:10, title:'新しいアイデアを形にするのが好き？', desc:'企画/開発志向', choices:[
-    {label:'大好き', weight:{pharmacy:1,hospital:1,homecare:1,industry:4,cro:1,research:2}},
-    {label:'好き',   weight:{pharmacy:1,hospital:1,homecare:1,industry:3,cro:2,research:2}},
-    {label:'普通',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',   weight:{pharmacy:3,hospital:3,homecare:3,industry:1,cro:1,research:1}},
-  ]},
-  { id:11, title:'相手の話をじっくり聴ける？', desc:'傾聴力', choices:[
-    {label:'とても聴ける', weight:{pharmacy:3,hospital:2,homecare:3,industry:0,cro:0,research:2}},
-    {label:'まあ聴ける',   weight:{pharmacy:2,hospital:2,homecare:2,industry:1,cro:1,research:2}},
-    {label:'やや苦手',     weight:{pharmacy:1,hospital:1,homecare:1,industry:2,cro:2,research:3}},
-    {label:'かなり苦手',   weight:{pharmacy:0,hospital:1,homecare:0,industry:2,cro:3,research:4}},
-  ]},
-  { id:12, title:'スケジュール/タスク管理は？', desc:'自己管理', choices:[
-    {label:'完璧', weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:3,research:1}},
-    {label:'得意', weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:3,research:1}},
-    {label:'普通', weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手', weight:{pharmacy:3,hospital:1,homecare:3,industry:1,cro:0,research:2}},
-  ]},
-  { id:13, title:'新薬情報やEBMを学び続けるのは苦じゃない？', desc:'学習意欲', choices:[
-    {label:'全然苦じゃない', weight:{pharmacy:2,hospital:3,homecare:2,industry:2,cro:1,research:2}},
-    {label:'苦じゃない',     weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:2,research:2}},
-    {label:'やや苦',         weight:{pharmacy:2,hospital:1,homecare:2,industry:2,cro:2,research:3}},
-    {label:'かなり苦',       weight:{pharmacy:1,hospital:1,homecare:1,industry:2,cro:2,research:4}},
-  ]},
-  { id:14, title:'臨機応変なコミュニケーションは得意？', desc:'対人対応力', choices:[
-    {label:'とても得意', weight:{pharmacy:3,hospital:3,homecare:3,industry:1,cro:0,research:0}},
-    {label:'得意',       weight:{pharmacy:3,hospital:2,homecare:2,industry:2,cro:1,research:0}},
-    {label:'普通',       weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',       weight:{pharmacy:1,hospital:1,homecare:1,industry:3,cro:3,research:3}},
-  ]},
-  { id:15, title:'地域連携・チーム医療に魅力を感じる？', desc:'協働意識', choices:[
-    {label:'強く感じる', weight:{pharmacy:2,hospital:3,homecare:3,industry:0,cro:0,research:0}},
-    {label:'感じる',     weight:{pharmacy:2,hospital:3,homecare:2,industry:1,cro:0,research:0}},
-    {label:'少し感じる', weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'あまり',     weight:{pharmacy:2,hospital:1,homecare:1,industry:3,cro:2,research:2}},
-  ]},
-  { id:16, title:'ルールや手順書に沿った運用は？', desc:'オペレーション適性', choices:[
-    {label:'大得意', weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:3,research:1}},
-    {label:'得意',   weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:3,research:1}},
-    {label:'普通',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',   weight:{pharmacy:3,hospital:1,homecare:3,industry:1,cro:0,research:2}},
-  ]},
-  { id:17, title:'「役に立っている実感」を重視する？', desc:'動機付け', choices:[
-    {label:'とても重視', weight:{pharmacy:3,hospital:2,homecare:3,industry:0,cro:0,research:0}},
-    {label:'重視',       weight:{pharmacy:3,hospital:2,homecare:2,industry:1,cro:0,research:0}},
-    {label:'どちらも同じ', weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'専門性重視', weight:{pharmacy:1,hospital:2,homecare:1,industry:2,cro:2,research:2}},
-  ]},
-  { id:18, title:'PCで資料やグラフを作るのは好き？', desc:'ドキュメントスキル', choices:[
-    {label:'大好き', weight:{pharmacy:1,hospital:1,homecare:1,industry:3,cro:2,research:3}},
-    {label:'好き',   weight:{pharmacy:1,hospital:1,homecare:1,industry:2,cro:2,research:2}},
-    {label:'普通',   weight:{pharmacy:2,hospital:2,homecare:2,industry:2,cro:1,research:1}},
-    {label:'苦手',   weight:{pharmacy:3,hospital:3,homecare:3,industry:1,cro:0,research:1}},
-  ]},
-  { id:19, title:'将来の働き方は「安定」寄り？「挑戦」寄り？', desc:'価値観', choices:[
-    {label:'かなり安定寄り', weight:{pharmacy:3,hospital:3,homecare:2,industry:0,cro:1,research:1}},
-    {label:'やや安定',       weight:{pharmacy:3,hospital:3,homecare:2,industry:1,cro:1,research:0}},
-    {label:'やや挑戦',       weight:{pharmacy:1,hospital:1,homecare:2,industry:3,cro:2,research:1}},
-    {label:'かなり挑戦',     weight:{pharmacy:0,hospital:0,homecare:2,industry:4,cro:3,research:1}},
-  ]},
-  { id:20, title:'今一番伸ばしたい力は？', desc:'成長意識', choices:[
-    {label:'コミュ力/接遇',  weight:{pharmacy:4,hospital:2,homecare:4,industry:0,cro:0,research:0}},
-    {label:'臨床/治療理解',  weight:{pharmacy:1,hospital:4,homecare:2,industry:1,cro:0,research:2}},
-    {label:'品質/運用管理',  weight:{pharmacy:0,hospital:1,homecare:1,industry:2,cro:4,research:1}},
-    {label:'研究/開発力',    weight:{pharmacy:0,hospital:1,homecare:1,industry:3,cro:1,research:4}},
-  ]},
-]
+const QUESTIONS = [
+  { text: "初対面の人ともすぐ打ち解け、会話をリードできるほうだ。", dimensions: ["コミュ力"] },
+  { text: "細かい作業や記録を正確に続けるのが得意だ。", dimensions: ["緻密さ"] },
+  { text: "仮説を立ててコツコツ検証する作業が好きだ。", dimensions: ["研究志向"] },
+  { text: "病態や薬理を深く学び、臨床に応用することに興味がある。", dimensions: ["臨床志向"] },
+  { text: "地域の人の相談に乗ったり、暮らしに近い支援がしたい。", dimensions: ["地域志向"] },
+
+  { text: "テキパキ動くのが好きで、忙しさにやりがいを感じる。", dimensions: ["スピード"] },
+  { text: "チームをまとめたり、方向性を決める役割に前向きだ。", dimensions: ["リーダー"] },
+  { text: "人に教える・資料を作るなど、伝える工夫が好きだ。", dimensions: ["教育志向"] },
+  { text: "夜勤・オンコールなど不規則勤務にも抵抗は少ない。", dimensions: ["夜勤耐性"] },
+  { text: "いずれは店舗運営や独立などにも興味がある。", dimensions: ["起業志向"] },
+
+  { text: "患者さんの話をじっくり聴き、背景まで想像して関わりたい。", dimensions: ["コミュ力", "臨床志向"] },
+  { text: "SOPや規格、ルールに沿って確実に進めるのが得意だ。", dimensions: ["緻密さ"] },
+  { text: "新しい知識を追うのが苦にならない（英語論文も可）。", dimensions: ["研究志向", "臨床志向"] },
+  { text: "多職種の中で自分の役割を見つけ、調整していくのが好き。", dimensions: ["コミュ力", "リーダー"] },
+  { text: "ご自宅に伺う等、生活に近い場での支援に興味がある。", dimensions: ["地域志向"] },
+
+  { text: "短時間で的確に判断して動ける自信がある。", dimensions: ["スピード"] },
+  { text: "後輩の育成や勉強会の企画などを楽しめそうだ。", dimensions: ["教育志向", "リーダー"] },
+  { text: "夜間や休日の呼び出しがあっても働ける環境を作れる。", dimensions: ["夜勤耐性"] },
+  { text: "在庫・売上など数字を見て改善するのが好きだ。", dimensions: ["起業志向", "スピード"] },
+  { text: "新薬の情報やエビデンスを整理して人に伝えるのが得意。", dimensions: ["臨床志向", "教育志向"] },
+
+  { text: "ルールの穴や不備を見つけ、改善提案するのが好き。", dimensions: ["緻密さ", "起業志向"] },
+  { text: "根拠をもとに交渉・説明することに抵抗がない。", dimensions: ["コミュ力", "教育志向"] },
+  { text: "将来は研究・大学院などで専門性を深めたい。", dimensions: ["研究志向"] },
+  { text: "来局者だけでなく、地域や施設全体の課題にアプローチしたい。", dimensions: ["地域志向", "リーダー"] },
+];
+
+export default QUESTIONS;
