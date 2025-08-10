@@ -1,354 +1,183 @@
-import React, { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+:root{
+  --bg: #0f1220;
+  --panel: rgba(255,255,255,.08);
+  --glass: rgba(255,255,255,.12);
+  --txt: #ffffff;
+  --muted: rgba(255,255,255,.78);
+  --accent: #7BD6F6;
+  --accent2:#FF7ACB;
 
-import QUESTIONS from "./data/questions";
-import { ROLES, DIMENSIONS, ROLE_WEIGHTS } from "./data/roles";
-import "./styles.css";
-
-/* ============== デコ用SVG（背景） ============== */
-const Pill = (props) => (
-  <svg viewBox="0 0 120 40" width={120} height={40} {...props}>
-    <defs>
-      <linearGradient id="g1" x1="0" x2="1">
-        <stop offset="0%" stopColor="#FF7ACB" />
-        <stop offset="100%" stopColor="#FEC260" />
-      </linearGradient>
-    </defs>
-    <rect rx="20" ry="20" width="120" height="40" fill="url(#g1)" />
-    <rect rx="20" ry="20" x="55" width="65" height="40" fill="#fff" opacity="0.9" />
-  </svg>
-);
-
-const Flask = (props) => (
-  <svg viewBox="0 0 80 100" width={80} height={100} {...props}>
-    <defs>
-      <linearGradient id="g2" x1="0" x2="1" y1="0" y2="1">
-        <stop offset="0%" stopColor="#7BD6F6" />
-        <stop offset="100%" stopColor="#7DE7C3" />
-      </linearGradient>
-    </defs>
-    <path d="M30 5h20v6l8 12v46c0 10-8 18-18 18s-18-8-18-18V23l8-12V5z" fill="url(#g2)" />
-    <circle cx="40" cy="60" r="8" fill="#fff" opacity="0.9" />
-  </svg>
-);
-
-/* ============== 職種イメージ：画像 or SVGフォールバック ============== */
-function JobImage({ roleKey, size = 96 }) {
-  const [imgOk, setImgOk] = useState(true);
-  const src = `/images/${roleKey}.png`; // 置けば自動で使われる
-
-  // フォールバックSVG（白衣キャラ風の簡易オリジナル）
-  const Fallback = () => (
-    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden>
-      <defs>
-        <linearGradient id={`face-${roleKey}`} x1="0" x2="1">
-          <stop offset="0" stopColor="#7BD6F6" />
-          <stop offset="1" stopColor="#FF7ACB" />
-        </linearGradient>
-      </defs>
-      <circle cx="60" cy="42" r="22" fill={`url(#face-${roleKey})`} />
-      <rect x="30" y="60" width="60" height="46" rx="10" fill="#fff" />
-      <rect x="55" y="72" width="10" height="18" rx="3" fill="#9fb3d1" />
-      <circle cx="53" cy="40" r="3" fill="#101828" />
-      <circle cx="67" cy="40" r="3" fill="#101828" />
-      <path d="M50 48 Q60 53 70 48" stroke="#0f172a" strokeWidth="2" fill="none" />
-    </svg>
-  );
-
-  return imgOk ? (
-    <img
-      src={src}
-      width={size}
-      height={size}
-      alt=""
-      onError={() => setImgOk(false)}
-      style={{ objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,.06)" }}
-    />
-  ) : (
-    <Fallback />
-  );
+  /* モバイル向けサイズ・高さ */
+  --container-w: min(1100px, 95%);
+  --section-gap: clamp(16px, 3vw, 32px);
+  --chart-h: clamp(240px, 64vw, 380px); /* 画面幅に応じて可変 */
+  --tap: 14px; /* セーフエリア/Tap補助 */
 }
 
-/* ============== ユーティリティ ============== */
-const clamp01 = (n) => Math.max(0, Math.min(1, n));
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+html{ -webkit-text-size-adjust: 100%; }
 
-/* ============== LP ============== */
-function Landing({ onStart }) {
-  return (
-    <motion.section
-      className="section landing"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-    >
-      <Pill className="deco pill pill-1" />
-      <Pill className="deco pill pill-2" />
-      <Flask className="deco flask flask-1" />
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 70% -10%, #233, transparent),
+    radial-gradient(1000px 500px at -10% 10%, #182235, transparent),
+    var(--bg);
+  color:var(--txt);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 
-      <div className="hero">
-        <motion.h1 layout>
-          薬学部キャリア診断 <span className="accent">（1分）</span>
-        </motion.h1>
-        <p className="lead">
-          かんたんな質問に答えるだけ。あなたの強みから、10職種の中で
-          <strong>相性が高いキャリア</strong>をレーダーチャートで可視化します。
-        </p>
-        <div className="cta-row">
-          <button className="btn btn-primary" onClick={onStart}>
-            診断を始める
-          </button>
-          <span className="sub">所要時間：1分／質問：24問</span>
-        </div>
-      </div>
-
-      <div className="cards">
-        <FeatureCard title="結果はグラフィックで" desc="レーダーチャート＋Top3マッチで、強みがひと目でわかる。" />
-        <FeatureCard title="学生でもわかる" desc="専門用語は最小限。直感でスイスイ答えられる設計。" />
-        <FeatureCard title="学内イベントでも活用" desc="QR配布OK。診断後にLPへ誘導して告知・応募に繋げる。" />
-      </div>
-
-      <div className="flow">
-        <Step n={1} t="質問に回答" />
-        <Step n={2} t="スコアを分析" />
-        <Step n={3} t="結果を確認＆次の一歩" />
-      </div>
-
-      <div className="cta-bottom">
-        <button className="btn btn-primary btn-lg" onClick={onStart}>
-          今すぐ診断する
-        </button>
-      </div>
-    </motion.section>
-  );
+  /* iOSのタップ反応改善 */
+  -webkit-tap-highlight-color: rgba(255,255,255,.08);
 }
 
-const FeatureCard = ({ title, desc }) => (
-  <motion.div className="card glass" whileHover={{ y: -4 }}>
-    <h3>{title}</h3>
-    <p>{desc}</p>
-  </motion.div>
-);
-const Step = ({ n, t }) => (
-  <div className="step">
-    <div className="badge">{n}</div>
-    <div>{t}</div>
-  </div>
-);
-
-/* ============== 診断画面（回答→自動で次へ） ============== */
-function Quiz({ onFinish }) {
-  const [page, setPage] = useState(0);
-  const [answers, setAnswers] = useState([]); // 0..4 の5段階
-  const q = QUESTIONS[page];
-  const percent = Math.round(((page + 1) / QUESTIONS.length) * 100);
-
-  const choose = (v) => {
-    // 回答をセットして、120ms後に自動で次へ
-    const next = [...answers];
-    next[page] = v;
-    setAnswers(next);
-
-    const isLast = page >= QUESTIONS.length - 1;
-    setTimeout(() => {
-      if (isLast) onFinish(next);
-      else setPage((p) => p + 1);
-    }, 120);
-  };
-
-  const back = () => page > 0 && setPage(page - 1);
-
-  return (
-    <motion.section
-      className="section quiz"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-    >
-      <div className="progress">
-        <div className="bar" style={{ width: `${percent}%` }} />
-      </div>
-
-      <div className="qbox">
-        <div className="qhead">
-          <div className="qcount">
-            Q{page + 1} / {QUESTIONS.length}
-          </div>
-          <h2>{q.text}</h2>
-        </div>
-
-        <div className="choices">
-          {["全く違う", "やや違う", "どちらとも", "やや当てはまる", "とても当てはまる"].map(
-            (label, i) => (
-              <button key={i} className={`choice ${answers[page] === i ? "active" : ""}`} onClick={() => choose(i)}>
-                {label}
-              </button>
-            )
-          )}
-        </div>
-
-        <div className="nav">
-          <button className="btn ghost" onClick={back} disabled={page === 0}>
-            戻る
-          </button>
-          {/* 次へボタンは残すが、自動前進するので未操作でOK */}
-          <button className="btn btn-primary" onClick={() => choose(answers[page] ?? 2)}>
-            次へ
-          </button>
-        </div>
-      </div>
-    </motion.section>
-  );
+.container{
+  min-height:100%;
+  display:flex; flex-direction:column;
+  gap:var(--section-gap);
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
 }
 
-/* ============== 結果画面（イラスト付き） ============== */
-function Results({ rawAnswers, onRetry, onBackLP }) {
-  // 1) 質問→適性軸(0..1)
-  const dimScores = useMemo(() => {
-    const sums = Object.fromEntries(DIMENSIONS.map((d) => [d, 0]));
-    const counts = Object.fromEntries(DIMENSIONS.map((d) => [d, 0]));
-    rawAnswers.forEach((a, i) => {
-      const q = QUESTIONS[i];
-      const v = [0, 0.25, 0.5, 0.75, 1][a];
-      q.dimensions.forEach((d) => {
-        sums[d] += v;
-        counts[d] += 1;
-      });
-    });
-    const avg = {};
-    DIMENSIONS.forEach((d) => {
-      avg[d] = counts[d] ? sums[d] / counts[d] : 0;
-    });
-    return avg;
-  }, [rawAnswers]);
+/* 共通ボタン */
+.btn{
+  padding:12px 18px;
+  border-radius:12px; border:none;
+  color:#000; background:#fff;
+  cursor:pointer; font-weight:700;
+  touch-action: manipulation;
+}
+.btn:active{ transform: translateY(1px); }
+.btn-lg{ padding:14px 22px; font-size:18px }
+.btn-primary{ background:linear-gradient(135deg, var(--accent2), var(--accent)); color:#111 }
+.btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,.3); color:#fff }
 
-  // 2) 職種スコア
-  const roleScores = useMemo(() => {
-    const out = ROLES.map((role) => {
-      const w = ROLE_WEIGHTS[role.key];
-      let s = 0;
-      let tw = 0;
-      DIMENSIONS.forEach((d) => {
-        const ww = w[d] ?? 0;
-        s += (dimScores[d] ?? 0) * ww;
-        tw += Math.abs(ww);
-      });
-      return { key: role.key, name: role.name, desc: role.desc, score: Math.round((tw ? s / tw : 0) * 100) };
-    });
-    return out.sort((a, b) => b.score - a.score);
-  }, [dimScores]);
+/* LP */
+.section{ width: var(--container-w); margin: 0 auto; }
+.landing .hero{ text-align:center; margin: 24px 0 8px; }
+.landing .hero h1{ font-size: clamp(26px, 5.5vw, 44px); margin: 0 0 8px; }
+.landing .hero .accent{ color:var(--accent) }
+.lead{ opacity:.9; max-width:760px; margin:8px auto 16px; line-height:1.7; font-size: clamp(15px, 3.8vw, 18px); }
+.cta-row{ display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap }
+.sub{ opacity:.85; font-size: clamp(12px, 3.3vw, 14px); }
 
-  // 3) レーダー用
-  const chartData = DIMENSIONS.map((d) => ({
-    axis: d,
-    value: Math.round(clamp01(dimScores[d]) * 100),
-  }));
+.cards{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px; margin: 16px 0 6px;
+}
+.card{ padding:16px 14px; border-radius:14px; background:var(--panel); border:1px solid rgba(255,255,255,.08) }
+.card h3{ margin:0 0 6px; font-size: clamp(16px, 4.4vw, 18px); }
+.card p{ margin:0; color:var(--muted); font-size: clamp(13px, 3.6vw, 15px); }
+.card.glass{ background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06)); backdrop-filter: blur(8px) }
 
-  const top3 = roleScores.slice(0, 3);
+.flow{ display:flex; justify-content:center; align-items:center; gap:16px; margin:8px 0 18px }
+.step{ display:flex; align-items:center; gap:10px; opacity:.9; font-size: clamp(14px, 3.8vw, 16px) }
+.badge{ width:28px; height:28px; border-radius:999px; display:grid; place-items:center; background:linear-gradient(135deg, var(--accent2), var(--accent)); color:#000; font-weight:800 }
 
-  return (
-    <motion.section
-      className="section results"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-    >
-      <Pill className="deco pill pill-3" />
-      <Flask className="deco flask flask-2" />
+/* クイズ */
+.quiz .progress{ height:8px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; margin: 6px 0 12px }
+.quiz .bar{ height:100%; background:linear-gradient(135deg, var(--accent2), var(--accent)) }
 
-      <header className="res-header">
-        <h2>診断結果</h2>
-        <p className="sub">
-          レーダーはあなたの<strong>適性バランス</strong>。下のカードで<strong>相性Top3</strong>をチェック。
-        </p>
-      </header>
+.qbox{ background:var(--panel); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:14px; }
+.qhead .qcount{
+  font-size: 12px; opacity:.8; background: rgba(255,255,255,.08);
+  padding:6px 10px; border-radius:999px; display:inline-block;
+}
+.qhead h2{ margin:8px 0 0; font-size: clamp(18px, 5.2vw, 24px); line-height:1.5; }
 
-      <div className="chart-wrap glass">
-        <ResponsiveContainer width="100%" height={360}>
-          <RadarChart data={chartData} outerRadius="80%">
-            <PolarGrid stroke="rgba(255,255,255,.3)" />
-            <PolarAngleAxis dataKey="axis" tick={{ fill: "rgba(255,255,255,.8)", fontSize: 12 }} />
-            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "rgba(255,255,255,.5)", fontSize: 10 }} />
-            <Radar name="適性" dataKey="value" stroke="#7BD6F6" fill="#7BD6F6" fillOpacity={0.45} />
-            <Tooltip formatter={(v) => `${v}%`} />
-          </RadarChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="top-cards">
-        {top3.map((r, i) => (
-          <motion.div key={r.key} className="card role" whileHover={{ y: -4 }}>
-            <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-              <JobImage roleKey={r.key} size={86} />
-              <div>
-                <div className="role-title">{r.name}</div>
-                <div className="score">{r.score}%</div>
-              </div>
-            </div>
-            <p className="role-desc" style={{ marginTop: 8 }}>{r.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="actions">
-        <button className="btn ghost" onClick={onBackLP}>LPに戻る</button>
-        <button className="btn btn-primary" onClick={onRetry}>もう一度診断する</button>
-      </div>
-
-      <div className="next-steps glass">
-        <h3>次の一歩</h3>
-        <ul>
-          <li>気になる職種のOB/OGに話を聞いてみる</li>
-          <li>実習や研究室選びを「適性軸」で見直す</li>
-          <li>在宅/病院見学や企業セミナーに申込み</li>
-        </ul>
-      </div>
-    </motion.section>
-  );
+/* 選択肢：指1本で押しやすい大きさ & 片手可 */
+.choices{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:10px; margin:14px 0;
+}
+.choice{
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#fff; cursor:pointer; text-align:left;
+  font-size: clamp(14px, 4.4vw, 16px);
+  touch-action: manipulation;
+}
+.choice:active{ transform: translateY(1px); }
+.choice.active{
+  background:linear-gradient(135deg, rgba(255,122,203,.35), rgba(123,214,246,.35));
+  border-color: rgba(255,255,255,.4);
 }
 
-/* ============== ルート ============== */
-export default function App() {
-  const [mode, setMode] = useState("lp"); // 'lp' | 'quiz' | 'results'
-  const [answers, setAnswers] = useState([]);
+/* ナビ：スマホは下部固定で大きなタップ領域 */
+.nav{
+  display:flex; justify-content:space-between; gap:10px;
+  margin-top: 10px;
+}
+.nav.nav-mobile{
+  position: sticky;
+  bottom: calc(0px + env(safe-area-inset-bottom));
+  background: color-mix(in oklab, black 20%, transparent);
+  backdrop-filter: blur(10px);
+  padding: 8px;
+  border-radius: 12px;
+}
 
-  return (
-    <div className="container">
-      <AnimatePresence mode="wait">
-        {mode === "lp" && <Landing key="lp" onStart={() => setMode("quiz")} />}
-        {mode === "quiz" && (
-          <Quiz
-            key="quiz"
-            onFinish={(ans) => {
-              setAnswers(ans);
-              setMode("results");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        )}
-        {mode === "results" && (
-          <Results
-            key="results"
-            rawAnswers={answers}
-            onRetry={() => setMode("quiz")}
-            onBackLP={() => setMode("lp")}
-          />
-        )}
-      </AnimatePresence>
+/* 結果 */
+.results .res-header{ text-align:center; margin: 6px 0 10px }
+.chart-wrap{ padding:10px; border-radius:14px; }
+.glass{ background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); border:1px solid rgba(255,255,255,.12); backdrop-filter: blur(8px) }
 
-      <footer className="footer">
-        <span>© Pharm Career Check</span>
-        <span className="dot">•</span>
-        <a href="#" onClick={(e) => e.preventDefault()}>プライバシー</a>
-      </footer>
-    </div>
-  );
+/* レーダーチャートの高さを端末幅に連動させる */
+.chart-wrap .recharts-responsive-container{
+  height: var(--chart-h) !important;
+}
+
+.top-cards{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px; margin:12px 0;
+}
+.card.role{ position:relative; overflow:hidden; padding:14px }
+.role-title{ font-weight:800; margin-top:4px; font-size: clamp(15px, 4.2vw, 18px); }
+.score{ font-size: clamp(18px, 5vw, 26px); font-weight:900; color:var(--accent); margin:2px 0 }
+.role-desc{ opacity:.9; font-size: clamp(13px, 3.6vw, 15px); }
+
+/* 次の一歩 */
+.next-steps{ padding:14px; border-radius:14px; margin-top:8px }
+.next-steps h3{ margin:0 0 6px; font-size: clamp(16px, 4.5vw, 18px); }
+.next-steps ul{ margin:6px 0; padding-left:18px; line-height:1.9; font-size: clamp(13px, 3.6vw, 15px); }
+
+/* フッター */
+.footer{
+  width: var(--container-w);
+  margin: 4px auto 24px;
+  opacity:.75; display:flex; gap:10px; align-items:center;
+  font-size: 13px;
+}
+.footer .dot{ opacity:.4 }
+
+/* デコ */
+.deco{ position:absolute; pointer-events:none; opacity:.35; filter:blur(.3px) }
+.pill-1{ top:70px; left:60px; transform:rotate(-15deg) }
+.pill-2{ top:180px; right:80px; transform:rotate(10deg) }
+.pill-3{ top:140px; right:140px; transform:rotate(15deg) }
+.flask-1{ top:430px; left:-10px }
+.flask-2{ top:360px; right:-8px }
+
+/* レスポンシブ調整 */
+@media (max-width: 960px){
+  .cards, .top-cards{ grid-template-columns: 1fr; }
+  .landing .hero{ margin-top: 12px; }
+  .cta-bottom{ margin-bottom: 4px; }
+}
+
+@media (max-width: 520px){
+  .container{ gap: 18px; }
+  .qbox{ padding: 12px; }
+  .choice{ padding: 14px; }
+  .nav.nav-mobile{ padding: 8px; }
+}
+
+/* アニメ苦手な人に配慮 */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
