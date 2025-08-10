@@ -1,169 +1,150 @@
 /* ====== 基本リセット ====== */
+:root {
+  color-scheme: light dark;
+  --bg: #0a0f1a;
+  --panel: #0f1725;
+  --card: #111b2d;
+  --text: #e7eefc;
+  --subtext: #a8b3c7;
+  --primary: #8aa4ff;
+  --accent: #f0a3ff;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-html, body {
+
+html,
+body,
+#root {
   height: 100%;
 }
-html, body, h1, h2, h3, p, ul, li, figure {
+
+html,
+body {
   margin: 0;
   padding: 0;
-}
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ====== セーフエリア & レイアウト変数 ====== */
-:root{
-  /* iOS notch 安全域 */
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-
-  /* ヘッダーの高さ（サイトに合わせて調整） */
-  --topbar-h: 56px;
-
-  /* 余白 */
-  --gap: 16px;
-
-  /* 配色（必要に応じて調整） */
-  --bg: #0a0c12;
-  --card: rgba(255,255,255,.08);
-  --text: #f6f7fb;
-  --muted: #c8c9d1;
-  --accent: linear-gradient(135deg,#a1e3ff,#caa7ff 60%,#ffb6d9);
-}
-
-/* ====== ベース ====== */
-body{
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  /* iOSのアドレスバー付きでも“見えている高さ”を基準に */
-  min-height: 100svh;            /* Safari 15.4+ */
-}
-@supports (min-height: 100dvh) {
-  body { min-height: 100dvh; }    /* もっと新しいブラウザ */
-}
-/* 古いブラウザのフォールバック */
-@supports not (min-height: 100svh) {
-  body { min-height: 100vh; }
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
-/* 内部アンカーのスクロール位置補正（上が隠れない） */
-:root {
-  --scroll-pad: calc(var(--topbar-h) + var(--safe-top) + 12px);
+/* ====== Safe-area（上が切れない） ====== */
+.safe-area {
+  min-height: 100dvh; /* モバイルのアドレスバー縮小拡張でも安定 */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* notch やシステムバーの重なりを吸収 */
+  padding-top: max(env(safe-area-inset-top), 12px);
+  padding-left: max(env(safe-area-inset-left), 12px);
+  padding-right: max(env(safe-area-inset-right), 12px);
+  padding-bottom: max(env(safe-area-inset-bottom), 12px);
 }
-* { scroll-margin-top: var(--scroll-pad); }
 
-/* ====== ヘッダー（必要なければ削除OK） ====== */
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  height: calc(var(--topbar-h) + var(--safe-top));
-  padding-top: var(--safe-top);
+/* ====== ヘッダー（シンプル） ====== */
+.header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-inline: max(16px, var(--safe-left));
-  background: rgba(10,12,18,.55);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  gap: 12px;
+  padding: 8px 12px;
+  background: color-mix(in oklab, var(--panel) 80%, black 20%);
+  border: 1px solid color-mix(in oklab, white 10%, var(--panel) 90%);
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0; /* safe-areaで余白が乗るから切れない */
+  z-index: 10;
 }
 
-/* ====== ページコンテナ ====== */
-.page{
-  /* 上：ノッチ + ヘッダー分の余白 / 下：ノッチ＋下部CTA分の余白 */
-  padding:
-    calc(var(--safe-top) + var(--topbar-h) + var(--gap))
-    max(16px, var(--safe-right))
-    calc(var(--safe-bottom) + 88px)
-    max(16px, var(--safe-left));
+/* ====== LP ヒーロー ====== */
+.hero {
+  position: relative;
+  border-radius: 18px;
+  overflow: clip;
+  padding: clamp(18px, 4.5vw, 28px);
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(138,164,255,0.35), transparent 60%),
+    radial-gradient(1200px 600px at 80% 30%, rgba(240,163,255,0.30), transparent 60%),
+    linear-gradient(180deg, #0e1630 0%, #0a0f1a 74%);
+  border: 1px solid color-mix(in oklab, white 10%, var(--card) 90%);
 }
 
-/* ====== ヒーロー（LPの冒頭セクション） ====== */
-.hero{
-  display: grid;
-  align-content: center;
-  gap: 20px;
-  min-block-size: 100svh;        /* 画面一杯に。iOSで安全に */
-}
-@supports (min-block-size: 100dvh) {
-  .hero { min-block-size: 100dvh; }
-}
-@supports not (min-block-size: 100svh) {
-  .hero { min-block-size: 100vh; }
+/* 背景に /public/images の画像をうっすら */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("/images/hero-bg.png") center / cover no-repeat;
+  opacity: 0.25; /* 無ければ 0 にする */
+  pointer-events: none;
 }
 
-.hero__title{
-  font-size: clamp(24px, 6vw, 42px);
-  line-height: 1.2;
+/* 見出しやテキスト */
+.hero h1 {
+  margin: 0 0 6px;
+  font-size: clamp(20px, 6vw, 36px);
+  letter-spacing: 0.03em;
 }
-.hero__lead{
-  color: var(--muted);
-  font-size: clamp(14px, 3.6vw, 18px);
+.hero p {
+  margin: 0;
+  color: var(--subtext);
 }
 
 /* CTA ボタン */
-.btn{
+.cta {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.button {
   appearance: none;
-  border: none;
-  color: #111;
-  font-weight: 700;
-  border-radius: 14px;
-  padding: 14px 20px;
-  background: var(--accent);
-  box-shadow: 0 10px 30px rgba(170,135,255,.35);
+  border: 1px solid color-mix(in oklab, white 14%, var(--panel) 86%);
+  background: linear-gradient(180deg, #253159, #19233f);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
-.btn--lg{
-  font-size: clamp(16px, 4.2vw, 18px);
-  padding: 16px 22px;
+.button.primary {
+  background: linear-gradient(180deg, #8aa4ff, #6e89ff);
+  border-color: color-mix(in oklab, white 30%, #6e89ff 70%);
+  color: #0a0f1a;
 }
 
-/* カード（LPの説明ブロック） */
-.card{
+/* カード群 */
+.grid {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+.card {
   background: var(--card);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 18px;
-  padding: 18px;
-  backdrop-filter: blur(6px);
-}
-.card + .card{
-  margin-top: 14px;
+  border: 1px solid color-mix(in oklab, white 8%, var(--card) 92%);
+  border-radius: 14px;
+  padding: 16px;
 }
 
-/* フッター風の固定CTA（必要なければ削除OK） */
-.sticky-cta{
-  position: sticky;
-  bottom: 0;
-  z-index: 50;
-  padding:
-    10px
-    max(16px, var(--safe-right))
-    calc(10px + var(--safe-bottom))
-    max(16px, var(--safe-left));
-  background: linear-gradient(to top, rgba(10,12,18,.75), rgba(10,12,18,0));
-  backdrop-filter: blur(6px);
+/* キャラ画像（/public/images/char-*.png） */
+.characters {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(160px, 40vw, 260px);
 }
-
-/* ====== ちょっとしたレスポンシブ ====== */
-@media (min-width: 680px){
-  .page{
-    padding-inline: clamp(24px, 5vw, 56px);
-  }
-  .card{
-    padding: 22px;
-  }
+.character {
+  max-width: min(70%, 280px);
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,.4));
 }
